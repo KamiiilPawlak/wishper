@@ -2,7 +2,7 @@
   <img src="./wishpher-logo.png" alt="Wishpher Logo" width="220" />
 </p>
 
-<h1 align="center">Wishpher</h1>
+<h1 align="center">Wishper</h1>
 
 <p align="center">
   <strong>Automatyczne przetwarzanie, transkrypcja i analiza nagrań audio przy użyciu lokalnych modeli AI.</strong>
