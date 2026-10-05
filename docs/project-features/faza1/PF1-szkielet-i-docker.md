@@ -24,7 +24,7 @@ Celem tego zadania jest stworzenie bazowego szkieletu repozytorium oraz skonfigu
 ## 📁 Proponowana Struktura Projektu
 
 ```text
-ai-podcast-manager/
+wishper/
 ├── .env.example
 ├── .gitignore
 ├── docker-compose.yml
