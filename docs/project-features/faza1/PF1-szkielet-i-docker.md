@@ -35,7 +35,6 @@ wishper/
 ├── backend/
 │   ├── Dockerfile
 │   ├── pyproject.toml
-│   ├── requirements.txt
 │   └── app/
 │       ├── __init__.py
 │       └── main.py
