@@ -8,13 +8,14 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
-    
+    "loguru>=0.7.3",
 ]
 
 [dependency-groups]
 dev = [
     "mypy>=2.4.0",
     "pre-commit>=4.7.0",
+    "pytest>=9.1.1",
     "ruff>=0.17.0",
 ]
 
@@ -44,3 +45,7 @@ known-first-party = ["app"]
 python_version = "3.12"
 strict = true
 files = ["app", "tests"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
