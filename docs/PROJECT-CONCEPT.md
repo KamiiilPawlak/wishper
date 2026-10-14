@@ -8,10 +8,10 @@ Aplikacja wykorzystująca lokalne modele AI do automatycznego przetwarzania i an
 
 - **Upload MP3:** Wczytywanie plików dźwiękowych i bezpieczne przechowywanie w obiektowym storage.
 - **Transkrypcja (Speech-to-Text):** zamiana mowy na tekst wraz z timestampami (`faster-whisper`).
-- **Analiza treści (LLM):**
-  - Automatyczne streszczenie nagrania.
-  - Podział nagrania na rozdziały z dokładnymi czasami.
-  - Propozycje chwytliwych tytułów oraz opisu (SEO/Show Notes).
+- **Analiza treści (NLP heurystyczne, bez LLM):**
+  - Automatyczne, ekstrakcyjne streszczenie nagrania (`sumy`).
+  - Podział nagrania na rozdziały z dokładnymi czasami (`sentence-transformers`).
+  - Propozycje tytułów oraz opisu na bazie słów kluczowych (`KeyBERT`).
 - **Generowanie napisów:** Automatyczna eksportacja transkrypcji do pliku `.srt`.
 - **Asynchroniczne przetwarzanie:** Przetwarzanie długich zadań w tle bez blokowania API.
 
@@ -31,7 +31,7 @@ Aplikacja wykorzystująca lokalne modele AI do automatycznego przetwarzania i an
 | **File Storage**     | MinIO (S3)            | Przechowywanie plików audio (MP3) oraz wygenerowanych napisów (SRT) |
 | **Audio Processing** | FFmpeg                | Analiza, konwersja i przygotowanie plików dźwiękowych               |
 | **Speech-to-Text**   | `faster-whisper`      | Zamiana mowy na tekst z timestampami                                |
-| **LLM**              | Ollama (`Qwen2.5:3b`) | Generowanie streszczeń, rozdziałów, tytułów i opisów                |
+| **NLP (bez LLM)**    | `sumy`, `KeyBERT`, `sentence-transformers` | Streszczenie, rozdziały, tytuły i opisy — w pełni na CPU |
 | **Background Jobs**  | Celery                | Kolejkowanie i obsługa zasobożernych zadań AI                       |
 | **Message Broker**   | Redis                 | Broker kolejki Celery + przechowywanie stanu zadań                  |
 | **Napisy**           | Python                | Dedykowany moduł do generowania plików `.srt`                       |
@@ -77,7 +77,7 @@ Aplikacja wykorzystująca lokalne modele AI do automatycznego przetwarzania i an
 │
 ├─► FFmpeg & faster-whisper  ──► Transkrypcja + Timestampy
 │
-├─► Ollama (Qwen2.5:3b)       ──► Streszczenie, Rozdziały, Tytuł + Opis
+├─► NLP: sumy/KeyBERT/sentence-transformers ──► Streszczenie, Rozdziały, Tytuł + Opis
 │
 └─► Moduł SRT                 ──► Generowanie pliku .srt (Zapis w MinIO)
 │
@@ -93,4 +93,4 @@ Aplikacja wykorzystująca lokalne modele AI do automatycznego przetwarzania i an
 ### Wymagania wstępne
 
 - [Docker](https://www.docker.com/) oraz Docker Compose
-- [Ollama](https://ollama.ai/) uruchomiona lokalnie z pobranym modelem `Qwen2.5:3b`
+- Brak wymagań na GPU — wszystkie modele (`faster-whisper`, `sentence-transformers`) działają na CPU

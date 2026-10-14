@@ -1,0 +1,28 @@
+{
+  "name": "wishper",
+  "version": "1.0.0",
+  "description": "Commitlint configuration for enforcing Conventional Commits.",
+  "private": true,
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KamiiilPawlak/wishper.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/KamiiilPawlak/wishper/issues"
+  },
+  "homepage": "https://github.com/KamiiilPawlak/wishper#readme",
+  "devDependencies": {
+    "@commitlint/cli": "^21.2.3",
+    "@commitlint/config-conventional": "^21.2.3"
+  }
+}

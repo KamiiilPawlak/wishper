@@ -1,18 +1,18 @@
 # Backend Challenges & Architecture Solutions
 
-Przetwarzanie audio i analiza przy użyciu lokalnych modeli AI (`faster-whisper` + `Ollama / Qwen2.5`) niesie ze sobą konkretne wyzwania inżynieryjne. Poniżej znajduje się zestawienie najważniejszych problemów architektonicznych w backendzie oraz rozwiązań zastosowanych w projekcie.
+Przetwarzanie audio i analiza przy użyciu lokalnych modeli AI (`faster-whisper` + heurystyki NLP: `sumy`, `KeyBERT`, `sentence-transformers`) niesie ze sobą konkretne wyzwania inżynieryjne — mimo braku LLM i pracy w pełni na CPU. Poniżej znajduje się zestawienie najważniejszych problemów architektonicznych w backendzie oraz rozwiązań zastosowanych w projekcie.
 
 ---
 
-## 1. Zarządzanie Zasobami i Wydajnością (VRAM / CPU / RAM)
+## 1. Zarządzanie Zasobami i Wydajnością (CPU / RAM, brak GPU)
 
-> **Problem Statement:** _Równoległe przetwarzanie kilku plików audio i jednoczesne uruchamianie modeli `faster-whisper` oraz `Qwen2.5:3b` stwarza wysokie ryzyko wyczerpania pamięci (OOM — Out of Memory) i awarii kontenerów Docker._
+> **Problem Statement:** _Aplikacja musi działać na słabszym sprzęcie bez karty graficznej (np. laptop z CPU Intel i5 8. generacji). Równoległe przetwarzanie kilku plików audio modelem `faster-whisper` oraz liczenie embeddingów (`sentence-transformers`) w tym samym czasie stwarza ryzyko nadmiernego obciążenia CPU/RAM i bardzo długiego czasu przetwarzania._
 
 ### Rozwiązanie:
 
 - **Kolejkowanie i limitowanie współbieżności:** Ustawienie `worker_concurrency = 1` w Celery dla workerów obsługujących zadania AI, co wymusza sekwencyjne przetwarzanie zasobożernych kroków.
-- **Optymalizacja kwantyzacji:** Wykorzystanie wariantów `int8` dla `faster-whisper` oraz `q4_k_m` dla Ollamy w celu drastycznego zmniejszenia zapotrzebowania na pamięć VRAM/RAM.
-- **Sekwencyjne zwalnianie zasobów:** Pipeline najpierw kończy etap Speech-to-Text, a dopiero po zwolnieniu zasobów przekazuje dane do LLM.
+- **Optymalizacja kwantyzacji:** Wykorzystanie wariantu `int8` dla `faster-whisper` oraz lekkiego modelu `all-MiniLM-L6-v2` dla `sentence-transformers`, co drastycznie zmniejsza zapotrzebowanie na pamięć RAM i czas obliczeń na CPU.
+- **Sekwencyjne zwalnianie zasobów:** Pipeline najpierw kończy etap Speech-to-Text, a dopiero po zwolnieniu zasobów przechodzi do etapu analizy NLP.
 
 ---
 
@@ -28,46 +28,46 @@ Przetwarzanie audio i analiza przy użyciu lokalnych modeli AI (`faster-whisper`
 
 ---
 
-## 3. Ograniczenia Kontekstu LLM przy Długich Transkrypcjach
+## 3. Wydajność Analizy NLP przy Długich Transkrypcjach
 
-> **Problem Statement:** _Transkrypcja wielogodzinnego podcastu może przekraczać 30 000 tokenów. Bezpośrednie przekazanie takiego tekstu do małego modelu lokalnego (`Qwen2.5:3b`) powoduje gubienie faktów, halucynacje lub błędy generowania._
+> **Problem Statement:** _Transkrypcja wielogodzinnego podcastu to tysiące zdań. Liczenie embeddingów (`sentence-transformers`) dla każdego zdania z osobna oraz ekstrakcyjne streszczanie (`sumy`) całego tekstu na raz jest nieefektywne na CPU i zużywa dużo RAM._
 
 ### Rozwiązanie:
 
-- **Hierarchiczny Chunking (Map-Reduce):** Dzielenie transkrypcji na logiczne bloki czasowe (np. bloki 10–15 minutowe), generowanie podsumowań dla każdego bloku z osobna (krok _Map_), a następnie scalanie wyników w ostateczne streszczenie i listę rozdziałów (krok _Reduce_).
-- **Wstępny podział w Pythonie:** Przekazywanie do LLM wstępnie pogrupowanych bloków wraz z zebranymi z Whispera znacznikami czasu.
+- **Chunking czasowy:** Dzielenie transkrypcji na logiczne bloki czasowe (np. 10–15 minutowe) z wykorzystaniem timestampów z Whishpera, co pozwala przetwarzać embeddingi i streszczenie blokami w batchach, a nie dla całego tekstu naraz.
+- **Detekcja rozdziałów przez spadek podobieństwa:** Porównywanie embeddingów sąsiednich bloków (cosine similarity) — lokalne minimum podobieństwa oznacza granicę rozdziału, bez potrzeby analizy całego dokumentu jednocześnie.
 
 ---
 
-## 4. Walidacja i Formatowanie Odpowiedzi LLM (JSON Parsing)
+## 4. Jakość Ekstrakcyjnych Heurystyk NLP (brak halucynacji, ale ryzyko złej ekstrakcji)
 
-> **Problem Statement:** _Modele LLM bywają niestabilne przy generowaniu strukturyzowanych danych (np. tablicy obiektów z rozdziałami) – ucięte cudzysłowy lub dodatkowy tekst komentarza uniemożliwiają zapis do bazy PostgreSQL._
+> **Problem Statement:** _W przeciwieństwie do LLM, metody ekstrakcyjne (`sumy`, `KeyBERT`) nie halucynują, ale mogą wybrać nietrafione zdania do streszczenia lub nieistotne słowa kluczowe, zwłaszcza przy krótkich lub silnie potocznych nagraniach._
 
 ### Rozwiązanie:
 
-- **Strict JSON Mode:** Wymuszanie odpowiedzi w formacie JSON w konfiguracji zapytań do Ollamy.
-- **Walidacja Pydantic v2:** Każda odpowiedź z LLM przechodzi przez ścisłą walidację schematu.
-- **Fallback & Auto-retry:** W przypadku błędu parsowania, specjalny moduł naprawczy czyszczący tekst (np. usuwanie znaczników markdown) podejmuje próbę naprawy struktury lub wysyła szybkie zapytanie korygujące do LLM.
+- **Walidacja Pydantic v2:** Każdy wynik analizy (streszczenie, lista rozdziałów, słowa kluczowe) przechodzi przez ścisłą walidację schematu przed zapisem do bazy.
+- **Progi i limity konfigurowalne:** Minimalna/maksymalna liczba zdań w streszczeniu oraz liczba słów kluczowych są parametrami konfiguracyjnymi, dostrajanymi pod typ nagrania.
+- **Stoplisty językowe:** Zastosowanie list stopwords i słowników specyficznych dla języka polskiego oraz mieszanego (code-switching PL/EN) w `KeyBERT`, aby uniknąć ekstrakcji nieistotnych fragmentów.
 
 ---
 
 ## 5. Idempotentność i Obsługa Awarii (Fault Tolerance)
 
-> **Problem Statement:** _Awaria workera w trakcie wieloetapowego procesu (np. niespodziewany restart Ollamy) może prowadzić do pozostawienia sierocych plików tymczasowych i spójności danych w bazie._
+> **Problem Statement:** _Awaria workera w trakcie wieloetapowego procesu (np. niespodziewany restart kontenera `celery_worker`) może prowadzić do pozostawienia sierocych plików tymczasowych i niespójności danych w bazie._
 
 ### Rozwiazanie:
 
-- **Wznowienie od punktu awarii:** Zapisywanie pośrednich wyników (np. surowej transkrypcji) w bazie/MinIO, co pozwala powtórzyć tylko nieudany krok (np. ponowić generowanie opisu bez ponownego uruchamiania transkrypcji Whisperm).
+- **Wznowienie od punktu awarii:** Zapisywanie pośrednich wyników (np. surowej transkrypcji) w bazie/MinIO, co pozwala powtórzyć tylko nieudany krok (np. ponowić analizę NLP bez ponownego uruchamiania transkrypcji Whisperem).
 - **Cleanup Handlers:** Automatyczne czyszczenie plików tymczasowych z dysku lokalnego workera w bloku `finally` po zakończeniu zadania.
 
 ---
 
 ## 📊 Podsumowanie Wyzwań i Rozwiązań
 
-| Challenge                        | Potencjalne ryzyko            | Rozwiązanie w backendzie                            |
-| :------------------------------- | :---------------------------- | :-------------------------------------------------- |
-| **Brak VRAM / OOM**              | Awaria kontenera Docker       | `worker_concurrency=1`, kwantyzacja `int8`/`q4_k_m` |
-| **Przekroczenie okna kontekstu** | Halucynacje, ucięte wyniki    | Chunking (Map-Reduce) i pre-processing w Pythonie   |
-| **Błędy w formatowaniu JSON**    | Awaria Pydantic / Błąd bazy   | Strict JSON Mode + auto-retry & repair parser       |
-| **Długi czas wykonania**         | Blocking HTTP / Timeout       | Asynchroniczny Celery + Redis + streamowanie do S3  |
-| **Przerwanie przetwarzania**     | Sierocze pliki / Błędne stany | Idempotentność etapów + retries + cleanup handlers  |
+| Challenge                        | Potencjalne ryzyko            | Rozwiązanie w backendzie                             |
+| :------------------------------- | :----------------------------- | :---------------------------------------------------- |
+| **Brak GPU, słabe CPU**          | Bardzo długi czas przetwarzania | `worker_concurrency=1`, kwantyzacja `int8`, lekki `MiniLM` |
+| **Długie transkrypcje**          | Wysokie zużycie RAM na embeddingi | Chunking czasowy i batchowanie NLP w Pythonie        |
+| **Słaba jakość ekstrakcji**      | Nietrafione streszczenie/słowa kluczowe | Konfigurowalne progi + stoplisty językowe PL/EN |
+| **Długi czas wykonania**         | Blocking HTTP / Timeout        | Asynchroniczny Celery + Redis + streamowanie do S3    |
+| **Przerwanie przetwarzania**     | Sierocze pliki / Błędne stany  | Idempotentność etapów + retries + cleanup handlers    |

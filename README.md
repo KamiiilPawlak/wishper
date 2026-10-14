@@ -21,7 +21,7 @@
 
 aplikacja służąca do automatycznej zamiany nagrań audio (MP3) na tekst, ich głębokiej analizy oraz tworzenia gotowych materiałów do publikacji.
 
-System działa w oparciu o lokalne modele AI (`faster-whisper` oraz `Ollama / Qwen2.5`), co gwarantuje pełną prywatność danych, brak opłat za API oraz nieograniczone możliwości przetwarzania.
+System działa w oparciu o lokalne modele AI (`faster-whisper`) oraz lekkie heurystyki NLP (`sumy`, `KeyBERT`, `sentence-transformers`), co gwarantuje pełną prywatność danych, brak opłat za API, pracę bez karty graficznej oraz nieograniczone możliwości przetwarzania.
 
 ---
 
@@ -29,22 +29,22 @@ System działa w oparciu o lokalne modele AI (`faster-whisper` oraz `Ollama / Qw
 
 - 🎙️ **Upload MP3:** Przesyłanie nagrań i bezpieczne przechowywanie w chmurze obiektowej (MinIO/S3).
 - 📝 **Transkrypcja (STT):** Zamiana mowy na tekst z dokładnymi znacznikami czasu (`faster-whisper`).
-- 🤖 **Analiza LLM (Qwen2.5):** Automatyczne generowanie streszczenia, podziału na rozdziały oraz propozycji tytułu i opisu (Show Notes).
-- 🎬 **Automatyczne napisy:** Generowanie gotowych plików `.srt` bez angażowania LLM.
+- 🧮 **Analiza heurystyczna (NLP):** Automatyczne generowanie streszczenia (`sumy`), podziału na rozdziały (`sentence-transformers`) oraz propozycji tytułu i opisu na bazie słów kluczowych (`KeyBERT`) — bez LLM, w pełni na CPU.
+- 🎬 **Automatyczne napisy:** Generowanie gotowych plików `.srt` bez angażowania modeli AI.
 - ⚡ **Asynchroniczne przetwarzanie:** Długie zadania wykonywane w tle (Celery + Redis) bez blokowania interfejsu.
 
 ---
 
 ## 🛠️ Stack Technologiczny
 
-| Obszar                   | Technologie                                         |
-| :----------------------- | :-------------------------------------------------- |
-| **Backend**              | Python, FastAPI, Pydantic v2, Loguru                |
-| **Baza & Storage**       | PostgreSQL, SQLAlchemy 2.0, Alembic, MinIO (S3)     |
-| **Kolejka & Pracownicy** | Celery, Redis                                       |
-| **Przetwarzanie AI**     | `faster-whisper`, Ollama (`Qwen2.5:3b`), FFmpeg     |
-| **Frontend**             | React, TypeScript, Zustand, shadcn/ui, Tailwind CSS |
-| **Narzędzia & Jakość**   | Docker Compose, pytest, Ruff, mypy, GitHub Actions  |
+| Obszar                   | Technologie                                                          |
+| :----------------------- | :------------------------------------------------------------------- |
+| **Backend**              | Python, FastAPI, Pydantic v2, Loguru                                 |
+| **Baza & Storage**       | PostgreSQL, SQLAlchemy 2.0, Alembic, MinIO (S3)                      |
+| **Kolejka & Pracownicy** | Celery, Redis                                                        |
+| **Przetwarzanie AI**     | `faster-whisper`, `sumy`, `KeyBERT`, `sentence-transformers`, FFmpeg |
+| **Frontend**             | React, TypeScript, Zustand, shadcn/ui, Tailwind CSS                  |
+| **Narzędzia & Jakość**   | Docker Compose, pytest, Ruff, mypy, GitHub Actions                   |
 
 ---
 

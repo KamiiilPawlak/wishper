@@ -10,8 +10,8 @@
 - [ ] [PF3](docs/project-features/faza2/PF3-szkielet-fastapi-i-healthcheck.md) — Szkielet FastAPI + Uvicorn: uruchomienie serwera API, konfiguracja Pydantic v2 oraz endpointy healthcheck (`/health`).
 - [ ] [PF4](project-features/PF4-baza-danych-i-storage.md) — Baza danych i Storage: podpięcie PostgreSQL (SQLAlchemy 2.0 + Alembic) oraz MinIO/S3 do zapisywania plików MP3.
 - [ ] [PF5](project-features/PF5-kolejka-celery-redis.md) — Kolejka i obsługa zadań: integracja Celery + Redis oraz obróbka audio w FFmpeg.
-- [ ] [PF6](project-features/PF6-stt-i-odciazenie-llm.md) — Transkrypcja i Odciążenie LLM: integracja `faster-whisper`, detekcja języka i generowanie napisów `.srt` w Pythonie.
-- [ ] [PF7](project-features/PF7-llm-pipeline.md) — Pipeline LLM (Ollama): podpięcie Qwen2.5:3b do generowania streszczeń, rozdziałów oraz tytułu i opisu.
+- [ ] [PF6](project-features/PF6-stt-i-odciazenie-llm.md) — Transkrypcja i Analiza NLP: integracja `faster-whisper`, detekcja języka i generowanie napisów `.srt` w Pythonie.
+- [ ] [PF7](project-features/PF7-llm-pipeline.md) — Pipeline Heurystyczny NLP (bez LLM): ekstrakcyjne streszczenie (`sumy`), detekcja rozdziałów przez embeddingi (`sentence-transformers`) oraz tytuł/opis na bazie słów kluczowych (`KeyBERT`) — w pełni na CPU.
 - [ ] [PF8](project-features/PF8-api-podcastow.md) — REST API Podcastów: pełne endpointy do przesyłania audio, uruchamiania procesu i pobierania wyników (JSON + SRT).
 - [ ] [PF9](project-features/PF9-statusy-i-dokumentacja.md) — Śledzenie statusów i Dokumentacja: endpointy sprawdzania postępu zadań oraz ostateczna dokumentacja Swagger/OpenAPI.
 
