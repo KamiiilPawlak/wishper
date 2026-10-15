@@ -16,5 +16,10 @@ node_modules/
 .ruff_cache/
 .pytest_cache/
 
+# Local environment variables (secrets, DB URLs)
+.env
+.env.*
+!.env.example
+
 # Internal/working notes - not part of public documentation
 docs/
