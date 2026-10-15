@@ -6,9 +6,11 @@ repos:
         name: ruff (lint)
         args: [--fix]
         files: ^backend/
+        stages: [pre-commit]
       - id: ruff-format
         name: ruff (format)
         files: ^backend/
+        stages: [pre-commit]
 
   - repo: local
     hooks:
@@ -19,6 +21,7 @@ repos:
         types: [python]
         files: ^backend/
         pass_filenames: false
+        stages: [pre-commit]
       - id: commitlint
         name: commitlint
         entry: npx --no -- commitlint --edit
