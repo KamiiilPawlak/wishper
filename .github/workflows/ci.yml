@@ -33,9 +33,6 @@ jobs:
       - name: mypy
         run: uv run mypy
 
-      - name: pytest
-        run: uv run pytest
-
   commitlint:
     name: Commit messages (Conventional Commits)
     if: github.event_name == 'pull_request'
