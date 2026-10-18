@@ -5,7 +5,7 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 scripts_dir="$script_dir/scripts"
 
 usage() {
-    echo "Usage: $0 {quality-backend|quality-frontend|quality|cleanup-backend|cleanup-frontend|cleanup|dev-backend|dev-frontend}"
+    echo "Usage: $0 {quality-backend|quality-frontend|quality|cleanup-backend|cleanup-frontend|cleanup|dev-backend|dev-frontend|docker-up}"
     exit 1
 }
 
@@ -37,6 +37,9 @@ case "$1" in
         ;;
     dev-frontend)
         "$scripts_dir/dev-frontend.sh"
+        ;;
+    docker-up)
+        "$scripts_dir/docker-up.sh"
         ;;
     *)
         usage
