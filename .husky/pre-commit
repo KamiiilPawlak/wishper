@@ -1,0 +1,2 @@
+(cd frontend && npx lint-staged)
+(cd backend && uv run pre-commit run)
