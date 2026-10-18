@@ -1,7 +1,7 @@
 
 param(
     [Parameter(Position = 0, Mandatory = $true)]
-    [ValidateSet("quality-backend", "quality-frontend", "quality", "cleanup-backend", "cleanup-frontend", "cleanup", "dev-backend", "dev-frontend")]
+    [ValidateSet("quality-backend", "quality-frontend", "quality", "cleanup-backend", "cleanup-frontend", "cleanup", "dev-backend", "dev-frontend", "docker-up")]
     [string]$Command
 )
 
@@ -43,4 +43,5 @@ switch ($Command) {
     }
     "dev-backend" { & (Join-Path $scriptsDir "dev-backend.ps1") }
     "dev-frontend" { & (Join-Path $scriptsDir "dev-frontend.ps1") }
+    "docker-up" { & (Join-Path $scriptsDir "docker-up.ps1") }
 }

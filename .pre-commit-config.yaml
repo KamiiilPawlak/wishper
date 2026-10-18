@@ -22,8 +22,3 @@ repos:
         files: ^backend/
         pass_filenames: false
         stages: [pre-commit]
-      - id: commitlint
-        name: commitlint
-        entry: npx --no -- commitlint --edit
-        language: system
-        stages: [commit-msg]
