@@ -23,3 +23,7 @@ node_modules/
 
 # Internal/working notes - not part of public documentation
 docs/
+research/
+
+# Editor settings (local/personal)
+.vscode/
