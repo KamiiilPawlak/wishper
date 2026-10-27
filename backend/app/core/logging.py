@@ -1,15 +1,20 @@
+import logging
 import sys
 
-from loguru import logger
-
-LOG_FORMAT = (
-    "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | "
-    "<level>{level: <8}</level> | "
-    "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - "
-    "<level>{message}</level>"
-)
+import structlog
 
 
 def configure_logging(level: str = "INFO") -> None:
-    logger.remove()
-    logger.add(sys.stderr, format=LOG_FORMAT, level=level, colorize=True)
+    structlog.configure(
+        processors=[
+            structlog.processors.add_log_level,
+            structlog.processors.TimeStamper(fmt="%Y-%m-%d %H:%M:%S"),
+            structlog.dev.ConsoleRenderer(colors=True),
+        ],
+        wrapper_class=structlog.make_filtering_bound_logger(logging.getLevelNamesMapping()[level]),
+        logger_factory=structlog.PrintLoggerFactory(file=sys.stderr),
+        cache_logger_on_first_use=False,
+    )
+
+
+logger = structlog.get_logger()

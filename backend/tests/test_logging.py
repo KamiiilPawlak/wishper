@@ -1,7 +1,6 @@
 import pytest
-from loguru import logger
 
-from app.core.logging import configure_logging
+from app.core.logging import configure_logging, logger
 
 
 def test_configure_logging_emits_message(capsys: pytest.CaptureFixture[str]) -> None:
