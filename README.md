@@ -39,7 +39,7 @@ System działa w oparciu o lokalne modele AI (`faster-whisper`) oraz lekkie heur
 
 | Obszar                   | Technologie                                                          |
 | :----------------------- | :------------------------------------------------------------------- |
-| **Backend**              | Python, FastAPI, Pydantic v2, Loguru                                 |
+| **Backend**              | Python, FastAPI, Pydantic v2, Structlog                              |
 | **Baza & Storage**       | PostgreSQL, SQLAlchemy 2.0, Alembic, lokalny storage plików          |
 | **Kolejka & Pracownicy** | Celery, Redis                                                        |
 | **Przetwarzanie AI**     | `faster-whisper`, `sumy`, `KeyBERT`, `sentence-transformers`, FFmpeg |
