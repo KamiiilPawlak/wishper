@@ -21,6 +21,7 @@ services:
       dockerfile: Dockerfile.dev
     environment:
       DATABASE_URL: postgresql+asyncpg://wishper:wishper@db:5432/wishper
+      LOG_LEVEL: INFO
     ports:
       - "8000:8000"
     volumes:
