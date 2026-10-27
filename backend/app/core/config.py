@@ -6,20 +6,22 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
-    database_url: str = "postgresql+asyncpg://wishper:wishper@localhost:5432/wishper"
-    redis_url: str = "redis://localhost:6379/0"
-    celery_broker_url: str = "redis://localhost:6379/0"
-    celery_result_backend: str = "redis://localhost:6379/0"
+    LOG_LEVEL: str = "INFO"
 
-    storage_path: str = "/data/recordings"
-    whisper_model_size: str = "base"
-    whisper_compute_type: str = "int8"
-    max_upload_size_mb: int = 500
+    DATABASE_URL: str = "postgresql+asyncpg://wishper:wishper@localhost:5432/wishper"
+    REDIS_URL: str = "redis://localhost:6379/0"
+    CELERY_BROKER_URL: str = "redis://localhost:6379/0"
+    CELERY_RESULT_BACKEND: str = "redis://localhost:6379/0"
 
-    summary_min_sentences: int = 3
-    summary_max_sentences: int = 10
-    keywords_count: int = 10
-    chunk_duration_minutes: int = 15
+    STORAGE_PATH: str = "/data/recordings"
+    WHISPER_MODEL_SIZE: str = "base"
+    WHISPER_COMPUTE_TYPE: str = "int8"
+    MAX_UPLOAD_SIZE_MB: int = 500
+
+    SUMMARY_MIN_SENTENCES: int = 3
+    SUMMARY_MAX_SENTENCES: int = 10
+    KEYWORDS_COUNT: int = 10
+    CHUNK_DURATION_MINUTES: int = 15
 
 
 @lru_cache
