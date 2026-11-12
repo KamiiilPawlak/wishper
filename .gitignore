@@ -23,7 +23,8 @@ node_modules/
 !.env.example
 
 # Internal/working notes - not part of public documentation
-docs/
+docs/internal/
+docs/research/
 research/
 
 # Editor settings (local/personal)
