@@ -15,6 +15,7 @@ dependencies = [
     "asyncpg>=0.30",
     "pydantic-settings>=2.6",
     "structlog>=26.1.0",
+    "python-multipart>=0.0.20",
 ]
 
 [dependency-groups]
@@ -48,6 +49,9 @@ select = [
 
 [tool.ruff.lint.isort]
 known-first-party = ["app"]
+
+[tool.ruff.lint.flake8-bugbear]
+extend-immutable-calls = ["fastapi.Depends"]
 
 [tool.mypy]
 python_version = "3.12"
